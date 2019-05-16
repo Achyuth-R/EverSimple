@@ -109,33 +109,6 @@ public class FloatingViewService extends Service{
             }
         });
 
-//        //Set the view while floating view is expanded.
-//        //Set the play button.
-//        ImageView playButton = (ImageView) mFloatingView.findViewById(R.id.play_btn);
-//        playButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(FloatingViewService.this, "Playing the song.", Toast.LENGTH_LONG).show();
-//            }
-//        });
-//
-//        //Set the next button.
-//        ImageView nextButton = (ImageView) mFloatingView.findViewById(R.id.next_btn);
-//        nextButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(FloatingViewService.this, "Playing next song.", Toast.LENGTH_LONG).show();
-//            }
-//        });
-//
-//        //Set the pause button.
-//        ImageView prevButton = (ImageView) mFloatingView.findViewById(R.id.prev_btn);
-//        prevButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(FloatingViewService.this, "Playing previous song.", Toast.LENGTH_LONG).show();
-//            }
-//        });
 
         //Set the close button
         ImageView closeButton = (ImageView) mFloatingView.findViewById(R.id.close_button);

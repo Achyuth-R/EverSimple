@@ -48,12 +48,6 @@ public class LoginActivity extends AppCompatActivity implements EvernoteLoginFra
                 .asSingleton();
 
 
-
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        toolbar.setTitleTextColor(getResources().getColor(R.color.tb_text));
-//
-//        setSupportActionBar(toolbar);
-
         mButton = (Button) findViewById(R.id.notify_me2);
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
