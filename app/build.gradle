@@ -9,6 +9,10 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "EVERNOTE_CONSUMER_KEY", (project.hasProperty('EVERNOTE_CONSUMER_KEY') ? "\"$EVERNOTE_CONSUMER_KEY\"" : "\"iamgokul2102\"")
+        buildConfigField "String", "EVERNOTE_CONSUMER_SECRET", (project.hasProperty('EVERNOTE_CONSUMER_SECRET') ? "\"$EVERNOTE_CONSUMER_SECRET\"" : "\"9e47b47db8730832\"")
+
     }
     buildTypes {
         release {
@@ -25,10 +29,15 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:appcompat-v7:26.0.0'
     implementation 'com.android.support:support-v4:25.0.1'
 
-//    //Ever Note SDK
-//    implementation 'com.evernote:android-sdk:2.0.0-RC4'
-//    implementation 'com.evernote:android-sdk:2.0.0-SNAPSHOT'
+    //Ever Note SDK
+    implementation 'com.evernote:android-sdk:2.0.0-RC4'
+    implementation 'com.evernote:android-sdk:2.0.0-SNAPSHOT'
+    implementation 'com.evernote:android-intent:1.0.1'
+
+    //GIF Viewer
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.16'
+
 }

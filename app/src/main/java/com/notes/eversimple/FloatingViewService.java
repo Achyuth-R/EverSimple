@@ -12,7 +12,9 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-public class FloatingViewService extends Service {
+import com.notes.eversimple.R;
+
+public class FloatingViewService extends Service{
 
     private WindowManager mWindowManager;
     private View mFloatingView;
@@ -35,12 +37,12 @@ public class FloatingViewService extends Service {
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY ,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
 
         //Specify the view position
-        params.gravity = Gravity.TOP | Gravity.LEFT;        //Initially view will be added to top-left corner
+        params.gravity = Gravity.START | Gravity.END;        //Initially view will be added to top-left corner
         params.x = 0;
         params.y = 100;
 
@@ -53,12 +55,43 @@ public class FloatingViewService extends Service {
         //The root element of the expanded view layout
         final View expandedView = mFloatingView.findViewById(R.id.expanded_container);
 
+        mFloatingView.setOnTouchListener(new View.OnTouchListener() {
+            private int initialX;
+            private int initialY;
+            private float initialTouchX;
+            private float initialTouchY;
 
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+
+                        //remember the initial position.
+                        initialX = params.x;
+                        initialY = params.y;
+
+                        //get the touch location
+                        initialTouchX = event.getRawX();
+                        initialTouchY = event.getRawY();
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        //Calculate the X and Y coordinates of the view.
+                        params.x = initialX + (int) (event.getRawX() - initialTouchX);
+                        params.y = initialY + (int) (event.getRawY() - initialTouchY);
+
+                        //Update the layout with new X & Y coordinate
+                        mWindowManager.updateViewLayout(mFloatingView, params);
+                        return true;
+                }
+                return false;
+            }
+        });
         //When user clicks on the image view of the collapsed layout,
         //visibility of the collapsed layout will be changed to "View.GONE"
         //and expanded view will become visible.
         final ImageView collapsedImageView = (ImageView) mFloatingView.findViewById(R.id.collapsed_iv);
         collapsedImageView.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
                 collapsedView.setVisibility(View.GONE);
@@ -76,7 +109,33 @@ public class FloatingViewService extends Service {
             }
         });
 
-
+//        //Set the view while floating view is expanded.
+//        //Set the play button.
+//        ImageView playButton = (ImageView) mFloatingView.findViewById(R.id.play_btn);
+//        playButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(FloatingViewService.this, "Playing the song.", Toast.LENGTH_LONG).show();
+//            }
+//        });
+//
+//        //Set the next button.
+//        ImageView nextButton = (ImageView) mFloatingView.findViewById(R.id.next_btn);
+//        nextButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(FloatingViewService.this, "Playing next song.", Toast.LENGTH_LONG).show();
+//            }
+//        });
+//
+//        //Set the pause button.
+//        ImageView prevButton = (ImageView) mFloatingView.findViewById(R.id.prev_btn);
+//        prevButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(FloatingViewService.this, "Playing previous song.", Toast.LENGTH_LONG).show();
+//            }
+//        });
 
         //Set the close button
         ImageView closeButton = (ImageView) mFloatingView.findViewById(R.id.close_button);
@@ -87,21 +146,16 @@ public class FloatingViewService extends Service {
                 expandedView.setVisibility(View.GONE);
             }
         });
-        //Open the application on the button click
-        ImageView openButton = (ImageView) mFloatingView.findViewById(R.id.open_button);
-        openButton.setOnClickListener(new View.OnClickListener() {
+
+        ImageView openNotes = (ImageView) mFloatingView.findViewById(R.id.floatseeNotes);
+        openNotes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Open the application  click.
-                Intent intent = new Intent(FloatingViewService.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
 
-                //close the service and remove view from the view hierarchy
-                stopSelf();
             }
         });
 
+        //Open the application on thi button click
 
 
         //Drag and move floating view using user's touch action.
@@ -143,4 +197,4 @@ public class FloatingViewService extends Service {
         super.onDestroy();
         if (mFloatingView != null) mWindowManager.removeView(mFloatingView);
     }
-}
+   }

@@ -6,11 +6,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.evernote.auth.EvernoteAuth;
+import com.evernote.client.android.EvernoteSession;
+
+
 public class MainActivity extends AppCompatActivity {
-    private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 12345;
+    private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2048;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
         //Check if the application has draw over other apps permission or not?
         //This permission is by default available for API<23. But for API > 23
         //you have to ask for the permission in runtime.
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
 
             //If the draw over permission is not available open the settings screen
@@ -36,24 +44,32 @@ public class MainActivity extends AppCompatActivity {
      * Set and initialize the view elements.
      */
     private void initializeView() {
-        findViewById(R.id.notify_me).setOnClickListener(new View.OnClickListener() {
+
+
+        findViewById(R.id.notify_me2).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                startService(new Intent(MainActivity.this, FloatingViewService.class));
+            public void onClick(View v) {
+                Intent intent=new Intent(MainActivity.this,LoginActivity.class);
+                startActivity(intent);
                 finish();
+
             }
         });
+
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
+            Log.d("Everrr","Got to Activity Creation");
 
             //Check if the permission is granted or not.
             if (resultCode == RESULT_OK) {
                 initializeView();
             } else { //Permission is not available
                 Toast.makeText(this,
+
                         "Draw over other app permission not available. Closing the application",
                         Toast.LENGTH_SHORT).show();
 
@@ -61,6 +77,9 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
+            Log.d("Ever","Got to Activity Creation ELSE PART!");
+
+
         }
     }
 }
