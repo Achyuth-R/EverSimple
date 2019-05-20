@@ -1,9 +1,12 @@
 package com.notes.eversimple;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,10 +30,13 @@ import java.util.List;
 import static android.app.PendingIntent.getActivity;
 import static android.support.v7.app.AlertDialog.*;
 
+
+
 public class HomeActivity extends AppCompatActivity implements CreateNoteDialog.CreateNoteDialogListener {
 
     private ImageView mAccept;
     private ImageView mDeny;
+    SharedPreferences mSharedPreference;
 
 
     @Override
@@ -41,23 +47,44 @@ public class HomeActivity extends AppCompatActivity implements CreateNoteDialog.
         mAccept=findViewById(R.id.home_accept);
         mDeny=findViewById(R.id.home_deny);
 
+        mSharedPreference = PreferenceManager.getDefaultSharedPreferences(this);
+        Boolean FloatAccept =mSharedPreference.getBoolean("floatButtonAccept",false);
 
-        mDeny.setVisibility(View.GONE);
+        if(FloatAccept){
+            mAccept.setVisibility(View.GONE);
+            mDeny.setVisibility(View.VISIBLE);
+
+            Toast.makeText(this, "EverSimple Service is currently Active", Toast.LENGTH_SHORT).show();
+
+        }else{
+            mDeny.setVisibility(View.GONE);
+            mAccept.setVisibility(View.VISIBLE);
+
+            Toast.makeText(this, "EverSimple Service is currently inActive. Switch it on to use Eversimple Service.", Toast.LENGTH_SHORT).show();
+
+        }
+
         mAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences.Editor editor = mSharedPreference.edit();
+                editor.putBoolean("floatButtonAccept", true);
+                editor.apply();
                 mAccept.setVisibility(View.GONE);
                 mDeny.setVisibility(View.VISIBLE);
-                Intent intent = new Intent(HomeActivity.this,FloatingViewService.class);
-                startService(intent);
-                finish();
+                Log.d("Everee","Accept Clicked");
+
             }
         });
         mDeny.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences.Editor editor = mSharedPreference.edit();
+                editor.putBoolean("floatButtonAccept", false);
+                editor.apply();
                 mDeny.setVisibility(View.GONE);
                 mAccept.setVisibility(View.VISIBLE);
+                Log.d("Everee","Deny Clicked");
 
             }
         });

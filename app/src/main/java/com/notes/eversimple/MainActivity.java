@@ -45,16 +45,10 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initializeView() {
 
-
-        findViewById(R.id.notify_me2).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
                 Intent intent=new Intent(MainActivity.this,LoginActivity.class);
                 startActivity(intent);
                 finish();
 
-            }
-        });
 
 
     }

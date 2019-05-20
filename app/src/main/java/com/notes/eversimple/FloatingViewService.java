@@ -2,8 +2,10 @@ package com.notes.eversimple;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -18,6 +20,7 @@ public class FloatingViewService extends Service{
 
     private WindowManager mWindowManager;
     private View mFloatingView;
+    SharedPreferences mSharedPreference;
 
     public FloatingViewService() {
     }
@@ -32,6 +35,7 @@ public class FloatingViewService extends Service{
         super.onCreate();
         //Inflate the floating view layout we created
         mFloatingView = LayoutInflater.from(this).inflate(R.layout.layout_floating_widget, null);
+
 
         //Add the view to the window.
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
@@ -124,6 +128,16 @@ public class FloatingViewService extends Service{
         openNotes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent intent=new Intent(FloatingViewService.this,HomeActivity.class);
+                startActivity(intent);
+
+            }
+        });
+        mFloatingView.findViewById(R.id.floatCreateNotes).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(FloatingViewService.this,WriteNoteAvtivity.class);
+                startActivity(intent);
 
             }
         });

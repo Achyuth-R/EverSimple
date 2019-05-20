@@ -34,6 +34,9 @@ public class LoginActivity extends AppCompatActivity implements EvernoteLoginFra
         mSharedPreference = PreferenceManager.getDefaultSharedPreferences(this);
         Boolean userLogedIn =mSharedPreference.getBoolean("loginstatus",false);
 
+
+
+
         if(userLogedIn){
             Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
             startActivity(intent);
