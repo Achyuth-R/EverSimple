@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -19,6 +20,7 @@
         <activity android:name=".HomeActivity" /> <!-- Evernote Activities -->
         <activity android:name="com.evernote.client.android.EvernoteOAuthActivity" />
         <activity android:name="com.evernote.client.android.login.EvernoteLoginActivity" />
+
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -40,10 +42,9 @@
             </intent-filter>
         </receiver>
 
-        <service
-            android:name=".FloatingViewService"
-            android:enabled="true"
-            android:exported="false" />
+        <service android:name=".FloatingViewService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
 
         <meta-data
             android:name="preloaded_fonts"

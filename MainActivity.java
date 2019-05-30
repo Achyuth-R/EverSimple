@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private EvernoteSession mEvernoteSession;
     private static final String CONSUMER_KEY = "iamgokul2102";
     private static final String CONSUMER_SECRET = "9e47b47db8730832";
-    private static final EvernoteSession.EvernoteService EVERNOTE_SERVICE = EvernoteSession.EvernoteService.SANDBOX;
+    private static final EvernoteSession.EvernoteService EVERNOTE_SERVICE = EvernoteSession.EvernoteService.PRODUCTION;
 
 
     @Override
