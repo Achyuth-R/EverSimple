@@ -23,7 +23,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.notes.eversimple.R;
 
 public class FloatingViewService extends Service{
 
