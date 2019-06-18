@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "993720885384",
+    "firebase_url": "https://phonememo-237c2.firebaseio.com",
+    "project_id": "phonememo-237c2",
+    "storage_bucket": "phonememo-237c2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:993720885384:android:4758d26873b02e3a",
+        "android_client_info": {
+          "package_name": "com.notes.eversimple"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "993720885384-i5ktniaup7n96r6u492evif0thme4t3v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.notes.eversimple",
+            "certificate_hash": "f57efb6d2d0b4d5bb96d6dca3a8dad5a9b6c6f14"
+          }
+        },
+        {
+          "client_id": "993720885384-at8bpbf7k951eutkritjvs3772g80t6m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4IVg_Ru2ZmZ0sT7ep-zMw7T1sBHFv04g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "993720885384-at8bpbf7k951eutkritjvs3772g80t6m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

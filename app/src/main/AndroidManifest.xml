@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
 
     <application
         android:allowBackup="true"
@@ -35,16 +36,20 @@
         </activity>
         <activity android:name=".LoginActivity"></activity>
 
+
+
         <receiver android:name=".PhoneStateReceiver">
             <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+            <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
             </intent-filter>
         </receiver>
 
-        <service android:name=".FloatingViewService"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE"/>
+            <service android:name=".FloatingViewService"
+                android:exported="false"
+                android:permission="android.permission.BIND_JOB_SERVICE"/>
 
         <meta-data
             android:name="preloaded_fonts"

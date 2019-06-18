@@ -18,9 +18,10 @@ import com.evernote.client.android.login.EvernoteLoginFragment;
 
 public class LoginActivity extends AppCompatActivity implements EvernoteLoginFragment.ResultCallback {
     private EvernoteSession mEvernoteSession;
-    private static final String CONSUMER_KEY = "iamgokul2102";
-    private static final String CONSUMER_SECRET = "9e47b47db8730832";
-    private static final EvernoteSession.EvernoteService EVERNOTE_SERVICE = EvernoteSession.EvernoteService.SANDBOX;
+    private static final String CONSUMER_KEY = "eversimpleadmin";
+    private static final String CONSUMER_SECRET = "d7bd6647c51232cf";
+    private static final EvernoteSession.EvernoteService EVERNOTE_SERVICE = EvernoteSession.EvernoteService.PRODUCTION;
+    public static final boolean SUPPORT_APP_LINKED_NOTEBOOKS = true;
     SharedPreferences mSharedPreference;
 
 
@@ -47,6 +48,7 @@ public class LoginActivity extends AppCompatActivity implements EvernoteLoginFra
 
         mEvernoteSession = new EvernoteSession.Builder(this)
                 .setEvernoteService(EVERNOTE_SERVICE)
+                .setSupportAppLinkedNotebooks(SUPPORT_APP_LINKED_NOTEBOOKS)
                 .build(CONSUMER_KEY, CONSUMER_SECRET)
                 .asSingleton();
 
@@ -84,12 +86,13 @@ public class LoginActivity extends AppCompatActivity implements EvernoteLoginFra
         switch (requestCode) {
             case EvernoteSession.REQUEST_CODE_LOGIN:
                 if (resultCode == Activity.RESULT_OK) {
-                    SharedPreferences.Editor editor = mSharedPreference.edit();
-                    editor.putBoolean("loginstatus", true);
-                    editor.apply();
+//                   // Log.d("Everee",data);
+//                    SharedPreferences.Editor editor = mSharedPreference.edit();
+//                    editor.putBoolean("loginstatus", true);
+//                    editor.apply();
                     // handle success
-                    Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
-                    startActivity(intent);
+                   // Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
+                    startActivity(data);
                     finish();
                 } else {
                     Toast.makeText(this, "Login Error", Toast.LENGTH_SHORT).show();

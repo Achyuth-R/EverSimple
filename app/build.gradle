@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 28
@@ -10,8 +11,8 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-        buildConfigField "String", "EVERNOTE_CONSUMER_KEY", (project.hasProperty('EVERNOTE_CONSUMER_KEY') ? "\"$EVERNOTE_CONSUMER_KEY\"" : "\"iamgokul2102\"")
-        buildConfigField "String", "EVERNOTE_CONSUMER_SECRET", (project.hasProperty('EVERNOTE_CONSUMER_SECRET') ? "\"$EVERNOTE_CONSUMER_SECRET\"" : "\"9e47b47db8730832\"")
+        buildConfigField "String", "EVERNOTE_CONSUMER_KEY", (project.hasProperty('EVERNOTE_CONSUMER_KEY') ? "\"$EVERNOTE_CONSUMER_KEY\"" : "\" eversimpleadmin\"")
+        buildConfigField "String", "EVERNOTE_CONSUMER_SECRET", (project.hasProperty('EVERNOTE_CONSUMER_SECRET') ? "\"$EVERNOTE_CONSUMER_SECRET\"" : "\"d7bd6647c51232cf\"")
 
     }
     buildTypes {
@@ -26,6 +27,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'com.google.firebase:firebase-core:16.0.4'
     testImplementation 'junit:junit:4.12'
 
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

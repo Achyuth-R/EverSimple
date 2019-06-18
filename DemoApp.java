@@ -30,7 +30,7 @@ public class DemoApp extends Application {
      * Change to PRODUCTION to use the Evernote production service
      * once your code is complete.
      */
-    private static final EvernoteSession.EvernoteService EVERNOTE_SERVICE = EvernoteSession.EvernoteService.PRODUCTION;
+    private static final EvernoteSession.EvernoteService EVERNOTE_SERVICE = EvernoteSession.EvernoteService.SANDBOX;
 
     /*
      * Set this to true if you want to allow linked notebooks for accounts that

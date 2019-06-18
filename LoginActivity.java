@@ -11,26 +11,39 @@ import android.widget.Button;
 import com.evernote.client.android.EvernoteSession;
 import com.evernote.client.android.login.EvernoteLoginFragment;
 
-/**
- * @author rwondratschek
- */
+
 public class LoginActivity extends AppCompatActivity implements EvernoteLoginFragment.ResultCallback {
 
-    public static void launch(Activity activity) {
-        activity.startActivity(new Intent(activity, LoginActivity.class));
-    }
+    private EvernoteSession mEvernoteSession;
+    private static final String CONSUMER_KEY = "iamgokul2102";
+    private static final String CONSUMER_SECRET = "9e47b47db8730832";
+    private static final EvernoteSession.EvernoteService EVERNOTE_SERVICE = EvernoteSession.EvernoteServicee.SANDBOX;
+    SharedPreferences mSharedPreference;
 
     private Button mButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_main));
+
+        mSharedPreference = PreferenceManager.getDefaultSharedPreferences(this);
+        Boolean userLogedIn =mSharedPreference.getBoolean("loginstatus",false);
+
+        if(userLogedIn){
+            Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
+            startActivity(intent);
+            finish();
+        }
 
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        toolbar.setTitleTextColor(getResources().getColor(R.color.tb_text));
 //
 //        setSupportActionBar(toolbar);
+        mEvernoteSession = new EvernoteSession.Builder(this)
+                .setEvernoteService(EVERNOTE_SERVICE)
+                .build(CONSUMER_KEY, CONSUMER_SECRET)
+                .asSingleton();
 
         mButton = (Button) findViewById(R.id.button_login);
         mButton.setOnClickListener(new View.OnClickListener() {

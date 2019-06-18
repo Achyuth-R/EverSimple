@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import com.evernote.auth.EvernoteAuth;
 import com.evernote.client.android.EvernoteSession;
+import com.evernote.client.android.asyncclient.EvernoteNoteStoreClient;
+import com.evernote.edam.type.Notebook;
 
 
 public class MainActivity extends AppCompatActivity {

@@ -73,6 +73,7 @@ public class HomeActivity extends AppCompatActivity implements CreateNoteDialog.
                 mAccept.setVisibility(View.GONE);
                 mDeny.setVisibility(View.VISIBLE);
                 Log.d("Everee","Accept Clicked");
+                createNoteBookMe();
 
             }
         });
@@ -119,25 +120,33 @@ public class HomeActivity extends AppCompatActivity implements CreateNoteDialog.
             }
         });
 
-        findViewById(R.id.home_create_notes).setOnClickListener(new View.OnClickListener() {
+
+    }
+
+    private void createNoteBookMe() {
+        if (!EvernoteSession.getInstance().isLoggedIn()) {
+            return;
+        }
+
+        EvernoteNoteStoreClient noteStoreClient = EvernoteSession.getInstance().getEvernoteClientFactory().getNoteStoreClient();
+
+        Notebook notebook = new Notebook();
+        notebook.setName("PhoneMemo");
+        notebook.setGuid("phonememo_notebook_guid");
+
+
+        noteStoreClient.createNotebookAsync(notebook, new EvernoteCallback<Notebook>() {
             @Override
-            public void onClick(View v) {
-                
-                if (!EvernoteSession.getInstance().isLoggedIn()) {
-                    Toast.makeText(HomeActivity.this, "Login Error!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                openDialog();
+            public void onSuccess(Notebook result) {
+                        Log.d("Everee","NB CR");
+            }
+
+            @Override
+            public void onException(Exception exception) {
+                Log.d("Everee","NB CRere "+exception);
             }
         });
-
     }
-    public void openDialog() {
-        CreateNoteDialog createNoteDialog = new CreateNoteDialog();
-        createNoteDialog.show(getSupportFragmentManager(), "create note dialog");
-    }
-
-
     @Override
     public void applyTexts(String title) {
         Toast.makeText(this, title, Toast.LENGTH_SHORT).show();

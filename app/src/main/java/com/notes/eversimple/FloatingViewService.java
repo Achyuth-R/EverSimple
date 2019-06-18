@@ -7,11 +7,15 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -23,13 +27,28 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.evernote.client.android.EvernoteSession;
+import com.evernote.client.android.asyncclient.EvernoteNoteStoreClient;
+import com.evernote.client.android.asyncclient.EvernoteUserStoreClient;
+import com.evernote.edam.error.EDAMSystemException;
+import com.evernote.edam.error.EDAMUserException;
+import com.evernote.thrift.TException;
+import com.evernote.edam.type.Notebook;
+
+import java.net.URISyntaxException;
+import java.util.*;
+
+import static android.content.Intent.getIntent;
+import static android.content.Intent.getIntentOld;
 
 public class FloatingViewService extends Service{
+    public static String callPhoneNumber;
 
     private WindowManager mWindowManager;
     private View mFloatingView;
     SharedPreferences mSharedPreference;
-
+    private static final String TAG_NAME_LIST  = "TAG_NAME_LIST";
+    private static final String NOTEBOOK_GUID="NOTEBOOK_GUID";
 
 
     public FloatingViewService() {
@@ -43,10 +62,16 @@ public class FloatingViewService extends Service{
     @Override
     public void onCreate() {
         super.onCreate();
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            startMyOwnForeground();}
+            startMyOwnForeground();
+        }
         else{
-            startForeground(1, new Notification());}
+            startForeground(1, new Notification());
+        }
+
+
         //Inflate the floating view layout we created
         mFloatingView = LayoutInflater.from(this).inflate(R.layout.layout_floating_widget, null);
 
@@ -69,7 +94,7 @@ public class FloatingViewService extends Service{
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 LAYOUT_FLAG,
-                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
 
         //Specify the view position
@@ -80,15 +105,13 @@ public class FloatingViewService extends Service{
         final Boolean FloatAccept =mSharedPreference.getBoolean("floatButtonAccept",false);
         //Add the view to the window
         if(FloatAccept){
-        mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        mWindowManager.addView(mFloatingView, params);
+            mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+            mWindowManager.addView(mFloatingView, params);
             Log.d("Everee","Open Float");
         }
 
         //The root element of the collapsed view layout
         final View collapsedView = mFloatingView.findViewById(R.id.collapse_view);
-        //The root element of the expanded view layout
-        final View expandedView = mFloatingView.findViewById(R.id.expanded_container);
 
         mFloatingView.setOnTouchListener(new View.OnTouchListener() {
             private int initialX;
@@ -121,16 +144,36 @@ public class FloatingViewService extends Service{
                 return false;
             }
         });
+
+
+
+
+
         //When user clicks on the image view of the collapsed layout,
         //visibility of the collapsed layout will be changed to "View.GONE"
         //and expanded view will become visible.
+        Log.d("Everee","Phn Num Is : "+ callPhoneNumber);
+        final ArrayList<String> tags=new ArrayList<String>();
+        final String notebookGUID="phonememo_notebook_guid";
+        tags.add("Eversimple");
+        Log.d("Everee","Name: "+getContactName(callPhoneNumber,FloatingViewService.this));
+        tags.add(getContactName(callPhoneNumber,FloatingViewService.this));
         final ImageView collapsedImageView = (ImageView) mFloatingView.findViewById(R.id.collapsed_iv);
         collapsedImageView.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                collapsedView.setVisibility(View.GONE);
-                expandedView.setVisibility(View.VISIBLE);
+
+
+                Intent intent = new Intent("com.evernote.action.CREATE_NEW_NOTE");
+
+                intent.putExtra(TAG_NAME_LIST,tags);
+                intent.putExtra(NOTEBOOK_GUID,notebookGUID);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                startActivity(intent);
+
+
+
             }
         });
 
@@ -145,36 +188,7 @@ public class FloatingViewService extends Service{
         });
 
 
-        //Set the close button
-        ImageView closeButton = (ImageView) mFloatingView.findViewById(R.id.close_button);
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                collapsedView.setVisibility(View.VISIBLE);
-                expandedView.setVisibility(View.GONE);
-            }
-        });
 
-        ImageView openNotes = (ImageView) mFloatingView.findViewById(R.id.floatseeNotes);
-        openNotes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent=new Intent(FloatingViewService.this,HomeActivity.class);
-                startActivity(intent);
-
-            }
-        });
-        mFloatingView.findViewById(R.id.floatCreateNotes).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent().setClass(FloatingViewService.this, WriteNoteAvtivity.class);
-                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-
-// Launch the new activity and add the additional flags to the intent
-                FloatingViewService.this.startActivity(i);
-
-            }
-        });
 
         //Open the application on thi button click
 
@@ -234,6 +248,8 @@ public class FloatingViewService extends Service{
         startForeground(2, notification);
     }
 
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -249,4 +265,26 @@ public class FloatingViewService extends Service{
             Log.d("Everee","OnDestroyDeny");
         }
     }
-   }
+    public String getContactName(final String phoneNumber, Context context)
+    {
+        Uri uri=Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,Uri.encode(phoneNumber));
+
+        String[] projection = new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME};
+
+        String contactName="";
+        Cursor cursor=context.getContentResolver().query(uri,projection,null,null,null);
+
+        if (cursor != null) {
+            if(cursor.moveToFirst()) {
+                contactName=cursor.getString(0);
+            }
+            cursor.close();
+        }
+        if(contactName.equals("")){
+            contactName=phoneNumber;
+        }
+        return contactName;
+    }
+
+
+}
