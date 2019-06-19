@@ -41,6 +41,7 @@ import java.util.*;
 import static android.content.Intent.getIntent;
 import static android.content.Intent.getIntentOld;
 
+
 public class FloatingViewService extends Service{
     public static String callPhoneNumber;
 
@@ -49,7 +50,9 @@ public class FloatingViewService extends Service{
     SharedPreferences mSharedPreference;
     private static final String TAG_NAME_LIST  = "TAG_NAME_LIST";
     private static final String NOTEBOOK_GUID="NOTEBOOK_GUID";
+    public static final String QUERY="QUERY";
 
+    public final static String mynumber="My Number";
 
     public FloatingViewService() {
     }
@@ -97,12 +100,19 @@ public class FloatingViewService extends Service{
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
 
+
+
+
+
+
+
         //Specify the view position
         params.gravity = Gravity.START | Gravity.END;        //Initially view will be added to top-left corner
         params.x = 0;
         params.y = 100;
         mSharedPreference = (SharedPreferences) PreferenceManager.getDefaultSharedPreferences(this);
         final Boolean FloatAccept =mSharedPreference.getBoolean("floatButtonAccept",false);
+        final String getnotenum =mSharedPreference.getString("notebookGUID","none");
         //Add the view to the window
         if(FloatAccept){
             mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
@@ -154,23 +164,30 @@ public class FloatingViewService extends Service{
         //and expanded view will become visible.
         Log.d("Everee","Phn Num Is : "+ callPhoneNumber);
         final ArrayList<String> tags=new ArrayList<String>();
-        final String notebookGUID="phonememo_notebook_guid";
         tags.add("Eversimple");
         Log.d("Everee","Name: "+getContactName(callPhoneNumber,FloatingViewService.this));
         tags.add(getContactName(callPhoneNumber,FloatingViewService.this));
         final ImageView collapsedImageView = (ImageView) mFloatingView.findViewById(R.id.collapsed_iv);
+
         collapsedImageView.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
 
 
-                Intent intent = new Intent("com.evernote.action.CREATE_NEW_NOTE");
+                Intent intent = new Intent("com.evernote.action.SEARCH");
 
                 intent.putExtra(TAG_NAME_LIST,tags);
-                intent.putExtra(NOTEBOOK_GUID,notebookGUID);
+
+                Log.d("Everee","notebook ID is "+getnotenum);
+                if(!getnotenum.equals(null))
+                    intent.putExtra(NOTEBOOK_GUID,getnotenum);
+
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-                startActivity(intent);
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                }else
+                    Toast.makeText(FloatingViewService.this, "Evernote Not Available", Toast.LENGTH_SHORT).show();
 
 
 
@@ -182,8 +199,9 @@ public class FloatingViewService extends Service{
         closeButtonCollapsed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //close the service and remove the from from the window
-                stopSelf();
+                Intent intent = new Intent("com.evernote.action.SEARCH_NOTES");
+
+                startActivity(intent);
             }
         });
 
