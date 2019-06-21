@@ -8,7 +8,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
+import android.net.Uri;
+import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -31,6 +34,9 @@ import com.evernote.edam.notestore.NoteFilter;
 import com.evernote.edam.notestore.NoteStore;
 import com.evernote.edam.type.Note;
 import com.evernote.edam.type.Notebook;
+import com.github.angads25.toggle.interfaces.OnToggledListener;
+import com.github.angads25.toggle.model.ToggleableView;
+import com.github.angads25.toggle.widget.LabeledSwitch;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -38,15 +44,15 @@ import java.util.List;
 
 import static android.app.PendingIntent.getActivity;
 import static android.support.v7.app.AlertDialog.*;
+import static com.notes.eversimple.MainActivity.CODE_DRAW_OVER_OTHER_APP_PERMISSION;
 
 
+public class HomeActivity extends AppCompatActivity  {
 
-public class HomeActivity extends AppCompatActivity implements CreateNoteDialog.CreateNoteDialogListener {
 
-    private ImageView mAccept;
-    private ImageView mDeny;
     SharedPreferences mSharedPreference;
     public final String noteBookName="PhoneMemo(Notebooks created on Call)";
+    ImageView viewOn,phone,contact,setting;
 
 
     private int PHONE_PERMISSION_CODE = 1,CONTACT_PERMISSION_CODE = 2;
@@ -56,68 +62,146 @@ public class HomeActivity extends AppCompatActivity implements CreateNoteDialog.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        mAccept=findViewById(R.id.home_accept);
-        mDeny=findViewById(R.id.home_deny);
+
+        final LabeledSwitch labeledSwitch = findViewById(R.id.myswitch);
 
         mSharedPreference = PreferenceManager.getDefaultSharedPreferences(this);
         boolean FloatAccept =mSharedPreference.getBoolean("floatButtonAccept",false);
         String notenum =mSharedPreference.getString("notebookGUID","none");
         Log.d("Everee","Recorded in Hime "+ notenum);
 
+        viewOn=findViewById(R.id.permViewOnTop);
+        phone=findViewById(R.id.phonePermission);
+        contact=findViewById(R.id.contactPermission);
+        setting=findViewById(R.id.home_menu);
 
-        if (ContextCompat.checkSelfPermission(HomeActivity.this,
-                Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED)
-            requestPhonePermission();
+
+        setting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this,SettingActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
 
         checkNoteBooks();
+        labeledSwitch.setColorDisabled(R.color.evernoteoff);
+
+
+
+        labeledSwitch.setLabelOn("Active");
+        labeledSwitch.setLabelOff("Disabled");
 
         if(FloatAccept){
-            mAccept.setVisibility(View.GONE);
-            mDeny.setVisibility(View.VISIBLE);
+
+            labeledSwitch.setOn(true);
+
+
 
             Toast.makeText(this, "EverSimple Service is currently Active", Toast.LENGTH_SHORT).show();
 
         }else{
-            mDeny.setVisibility(View.GONE);
-            mAccept.setVisibility(View.VISIBLE);
+            labeledSwitch.setColorBorder(R.color.evernoteoff);
+            labeledSwitch.setOn(false);
 
             Toast.makeText(this, "EverSimple Service is currently inActive. Switch it on to use Eversimple Service.", Toast.LENGTH_SHORT).show();
 
         }
 
-        mAccept.setOnClickListener(new View.OnClickListener() {
+
+        labeledSwitch.setOnToggledListener(new OnToggledListener() {
+            @Override
+            public void onSwitched(ToggleableView toggleableView, boolean isOn) {
+                if(isOn){
+                    if (ContextCompat.checkSelfPermission(HomeActivity.this,
+                            Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED){
+                        requestContactPermission();
+                        labeledSwitch.setOn(false);
+                    }
+                    else if (ContextCompat.checkSelfPermission(HomeActivity.this,
+                            Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED){
+                        requestPhonePermission();
+                        labeledSwitch.setOn(false);
+                    }
+                    else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(HomeActivity.this )) {
+
+                        //If the draw over permission is not available open the settings screen
+                        //to grant the permission.
+                        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:" + getPackageName()));
+                        startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
+                        labeledSwitch.setOn(false);
+
+                    }
+                    else{
+                        SharedPreferences.Editor editor = mSharedPreference.edit();
+                        editor.putBoolean("floatButtonAccept", true);
+                        editor.apply();
+                        labeledSwitch.setOn(true);
+
+
+                        Log.d("Everee","Accept Clicked");
+
+
+                    }
+                }
+                else{
+                    SharedPreferences.Editor editor = mSharedPreference.edit();
+                    editor.putBoolean("floatButtonAccept", false);
+                    editor.apply();
+                    labeledSwitch.setOn(false);
+
+
+                    Log.d("Everee","Deny Clicked");
+                }
+
+            }
+        });
+
+
+
+
+
+
+
+        viewOn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-             if (ContextCompat.checkSelfPermission(HomeActivity.this,
-                        Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED){
-                    SharedPreferences.Editor editor = mSharedPreference.edit();
-                editor.putBoolean("floatButtonAccept", true);
-                editor.apply();
-                mAccept.setVisibility(View.GONE);
-                mDeny.setVisibility(View.VISIBLE);
-                Log.d("Everee","Accept Clicked");}
-                else{
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(HomeActivity.this )) {
+
+                    //If the draw over permission is not available open the settings screen
+                    //to grant the permission.
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:" + getPackageName()));
+                    startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
+
+                } else {
+                    Toast.makeText(HomeActivity.this, "View on Top permission is already Given", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+        phone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                    requestPhonePermission();
+
+            }
+        });
+
+        contact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
                     requestContactPermission();
 
-                }
-
-
             }
         });
-        mDeny.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences.Editor editor = mSharedPreference.edit();
-                editor.putBoolean("floatButtonAccept", false);
-                editor.apply();
-                mDeny.setVisibility(View.GONE);
-                mAccept.setVisibility(View.VISIBLE);
-                Log.d("Everee","Deny Clicked");
 
-            }
-        });
 
 
 
@@ -199,11 +283,7 @@ public class HomeActivity extends AppCompatActivity implements CreateNoteDialog.
             }
         });
     }
-    @Override
-    public void applyTexts(String title) {
-        Toast.makeText(this, title, Toast.LENGTH_SHORT).show();
 
-    }
 
     private void requestPhonePermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -261,21 +341,43 @@ public class HomeActivity extends AppCompatActivity implements CreateNoteDialog.
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this )) {
+
+            viewOn.setImageResource(R.drawable.ic_close_black);
+        } else {
+            viewOn.setImageResource(R.drawable.ic_check_black);
+        }
+
+
+        if (ContextCompat.checkSelfPermission(HomeActivity.this,
+                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED)
+            requestPhonePermission();
+        else if (ContextCompat.checkSelfPermission(HomeActivity.this,
+                Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
+            requestContactPermission();
+
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PHONE_PERMISSION_CODE)  {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                Toast.makeText(this, "Permission GRANTED", Toast.LENGTH_SHORT).show();
+                phone.setImageResource(R.drawable.ic_check_black);
+                Toast.makeText(this, "Phone Permission GRANTED", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
+                phone.setImageResource(R.drawable.ic_close_black);
+
             }
         }
         if (requestCode == CONTACT_PERMISSION_CODE)  {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                Toast.makeText(this, "Permission GRANTED", Toast.LENGTH_SHORT).show();
+                contact.setImageResource(R.drawable.ic_check_black);
+                Toast.makeText(this, "Contact Permission GRANTED", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
+
+                contact.setImageResource(R.drawable.ic_close_black);
             }
         }
     }

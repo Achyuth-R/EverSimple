@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-   >
-
+    android:layout_gravity="end">
 
 
     <RelativeLayout
@@ -16,25 +15,26 @@
 
         <!--View while view is collapsed-->
         <RelativeLayout
-            android:id="@+id/collapse_view"
+            android:gravity="end"
+            android:id="@+id/collapse_viewr"
             android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="visible"
-            android:background="@drawable/round_bg">
+            android:background="@drawable/left_slide"
+            >
 
 
             <ng.max.slideview.SlideView
-                android:background="@drawable/left_slide"
-                android:id="@+id/slideView"
+                android:gravity="end"
+                android:id="@+id/slideViewRight"
                 android:layout_width="112dp"
                 android:layout_height="56dp"
+                android:background="@drawable/left_slide"
                 app:sv_buttonBackgroundColor="#0000ffff"
-                app:sv_buttonImage="@drawable/magnifier"
-                app:sv_reverseSlide="false"
+                app:sv_buttonImage="@drawable/writing"
+                app:sv_reverseSlide="true"
                 app:sv_slideBackgroundColor="#0000ffff" />
-
-
         </RelativeLayout>
 
 

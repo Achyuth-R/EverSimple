@@ -33,7 +33,7 @@ public class LoginActivity extends AppCompatActivity implements EvernoteLoginFra
         setContentView(R.layout.activity_main);
 
         mSharedPreference = PreferenceManager.getDefaultSharedPreferences(this);
-        Boolean userLogedIn =mSharedPreference.getBoolean("loginstatus",false);
+        boolean userLogedIn =mSharedPreference.getBoolean("loginstatus",false);
 
 
 
