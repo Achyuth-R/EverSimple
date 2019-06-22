@@ -1,13 +1,10 @@
 package com.notes.eversimple;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -20,20 +17,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.evernote.auth.EvernoteService;
+import com.evernote.client.android.AuthenticationResult;
 import com.evernote.client.android.EvernoteSession;
-import com.evernote.client.android.EvernoteUtil;
 import com.evernote.client.android.asyncclient.EvernoteCallback;
+import com.evernote.client.android.asyncclient.EvernoteClientFactory;
 import com.evernote.client.android.asyncclient.EvernoteNoteStoreClient;
-import com.evernote.clients.NoteStoreClient;
+import com.evernote.client.android.asyncclient.EvernoteUserStoreClient;
+import com.evernote.edam.error.EDAMSystemException;
+import com.evernote.edam.error.EDAMUserException;
 import com.evernote.edam.notestore.NoteFilter;
-import com.evernote.edam.notestore.NoteStore;
-import com.evernote.edam.type.Note;
 import com.evernote.edam.type.Notebook;
+import com.evernote.edam.type.User;
+import com.evernote.thrift.TException;
 import com.github.angads25.toggle.interfaces.OnToggledListener;
 import com.github.angads25.toggle.model.ToggleableView;
 import com.github.angads25.toggle.widget.LabeledSwitch;
@@ -43,16 +44,19 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static android.app.PendingIntent.getActivity;
-import static android.support.v7.app.AlertDialog.*;
+import static com.notes.eversimple.LoginActivity.mEvernoteSession;
 import static com.notes.eversimple.MainActivity.CODE_DRAW_OVER_OTHER_APP_PERMISSION;
 
 
 public class HomeActivity extends AppCompatActivity  {
 
 
+    private static final int REQUEST_CODE_ASK_PERMISSIONS = 3;
     SharedPreferences mSharedPreference;
     public final String noteBookName="PhoneMemo(Notebooks created on Call)";
     ImageView viewOn,phone,contact,setting;
+    TextView mText;
+    String name;
 
 
     private int PHONE_PERMISSION_CODE = 1,CONTACT_PERMISSION_CODE = 2;
@@ -74,6 +78,8 @@ public class HomeActivity extends AppCompatActivity  {
         phone=findViewById(R.id.phonePermission);
         contact=findViewById(R.id.contactPermission);
         setting=findViewById(R.id.home_menu);
+        mText=findViewById(R.id.name);
+
 
 
         setting.setOnClickListener(new View.OnClickListener() {
@@ -84,7 +90,6 @@ public class HomeActivity extends AppCompatActivity  {
                 finish();
             }
         });
-
 
         checkNoteBooks();
         labeledSwitch.setColorDisabled(R.color.evernoteoff);
@@ -114,7 +119,7 @@ public class HomeActivity extends AppCompatActivity  {
         labeledSwitch.setOnToggledListener(new OnToggledListener() {
             @Override
             public void onSwitched(ToggleableView toggleableView, boolean isOn) {
-                if(isOn){
+                if(isOn&&checkCallPermission()){
                     if (ContextCompat.checkSelfPermission(HomeActivity.this,
                             Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED){
                         requestContactPermission();
@@ -341,8 +346,8 @@ public class HomeActivity extends AppCompatActivity  {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this )) {
 
             viewOn.setImageResource(R.drawable.ic_close_black);
@@ -357,6 +362,8 @@ public class HomeActivity extends AppCompatActivity  {
         else if (ContextCompat.checkSelfPermission(HomeActivity.this,
                 Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
             requestContactPermission();
+
+
 
     }
 
@@ -379,6 +386,30 @@ public class HomeActivity extends AppCompatActivity  {
 
                 contact.setImageResource(R.drawable.ic_close_black);
             }
+        }
+    }
+
+    private boolean checkCallPermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            String call = Manifest.permission.CALL_PHONE;
+            String outgoing = Manifest.permission.PROCESS_OUTGOING_CALLS;
+            String incoming = Manifest.permission.READ_PHONE_STATE;
+            int hasCallPermission = checkSelfPermission(call);
+            List<String> permissions = new ArrayList<String>();
+            if (hasCallPermission != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(call);
+                permissions.add(outgoing);
+                permissions.add(incoming);
+            }
+            if (!permissions.isEmpty()) {
+                String[] params = permissions.toArray(new String[permissions.size()]);
+                requestPermissions(params, REQUEST_CODE_ASK_PERMISSIONS);
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
         }
     }
 }

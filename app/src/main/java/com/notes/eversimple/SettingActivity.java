@@ -1,5 +1,6 @@
 package com.notes.eversimple;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -12,7 +13,10 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.evernote.client.android.EvernoteSession;
 
 public class SettingActivity extends AppCompatActivity {
     SharedPreferences mSharedPreference;
@@ -20,6 +24,7 @@ public class SettingActivity extends AppCompatActivity {
     private RadioButton radioPosButton1,radioPosButton2,radioPosButton3,radioColorButton1,radioColorButton2,radioColorButton3;
     private ImageView btnBack;
     private Button mSave;
+    private TextView mTextview;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +36,28 @@ public class SettingActivity extends AppCompatActivity {
         radioColorgrp = findViewById(R.id.radioColorGroup);
 
         btnBack = findViewById(R.id.back);
+        mTextview=findViewById(R.id.name);
 
+        if(EvernoteSession.getInstance().isLoggedIn()){
+            mTextview.setText("Click here to Logout");
+        }
+        else{
+            mTextview.setText("Reset App");
+        }
+
+        mTextview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EvernoteSession.getInstance().logOut();
+                SharedPreferences mSharedPreference =getSharedPreferences("user", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = mSharedPreference.edit();
+                editor.clear();
+                editor.commit();
+                Intent intent = new Intent(SettingActivity.this,MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
 
         btnBack.setOnClickListener(new View.OnClickListener() {

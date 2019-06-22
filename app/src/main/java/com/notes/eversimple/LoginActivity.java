@@ -17,7 +17,7 @@ import com.evernote.client.android.login.EvernoteLoginFragment;
 
 
 public class LoginActivity extends AppCompatActivity implements EvernoteLoginFragment.ResultCallback {
-    private EvernoteSession mEvernoteSession;
+    public static EvernoteSession mEvernoteSession;
     private static final String CONSUMER_KEY = "eversimpleadmin";
     private static final String CONSUMER_SECRET = "d7bd6647c51232cf";
     private static final EvernoteSession.EvernoteService EVERNOTE_SERVICE = EvernoteSession.EvernoteService.PRODUCTION;
@@ -38,11 +38,6 @@ public class LoginActivity extends AppCompatActivity implements EvernoteLoginFra
 
 
 
-        if(userLogedIn){
-            Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
-            startActivity(intent);
-            finish();
-        }
 
 
 
@@ -51,6 +46,12 @@ public class LoginActivity extends AppCompatActivity implements EvernoteLoginFra
                 .setSupportAppLinkedNotebooks(SUPPORT_APP_LINKED_NOTEBOOKS)
                 .build(CONSUMER_KEY, CONSUMER_SECRET)
                 .asSingleton();
+
+        if(mEvernoteSession.isLoggedIn()){
+            Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
+            startActivity(intent);
+            finish();
+        }
 
 
         mButton = (Button) findViewById(R.id.notify_me2);
@@ -72,6 +73,7 @@ public class LoginActivity extends AppCompatActivity implements EvernoteLoginFra
             SharedPreferences.Editor editor = mSharedPreference.edit();
             editor.putBoolean("loginstatus", true);
             editor.apply();
+            mEvernoteSession.getAuthToken();
 
             Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
             startActivity(intent);

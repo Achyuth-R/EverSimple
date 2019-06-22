@@ -38,12 +38,12 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".PhoneStateReceiver">
-            <intent-filter android:priority="1000">
+        <receiver android:name=".PhoneStateReceiver" android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL"
+                    android:priority="1"/>
                 <action android:name="android.intent.action.PHONE_STATE" />
-            </intent-filter>
-            <intent-filter android:priority="1000">
-                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
 
