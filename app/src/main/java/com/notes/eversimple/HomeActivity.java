@@ -77,19 +77,19 @@ public class HomeActivity extends AppCompatActivity  {
         viewOn=findViewById(R.id.permViewOnTop);
         phone=findViewById(R.id.phonePermission);
         contact=findViewById(R.id.contactPermission);
-        setting=findViewById(R.id.home_menu);
+//        setting=findViewById(R.id.home_menu);
         mText=findViewById(R.id.name);
 
 
 
-        setting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(HomeActivity.this,SettingActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
+//        setting.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(HomeActivity.this,SettingActivity.class);
+//                startActivity(intent);
+//                finish();
+//            }
+//        });
 
         checkNoteBooks();
         labeledSwitch.setColorDisabled(R.color.evernoteoff);

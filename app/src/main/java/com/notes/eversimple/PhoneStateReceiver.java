@@ -13,7 +13,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 
-import org.jetbrains.annotations.NotNull;
 
 import static android.content.Intent.EXTRA_PHONE_NUMBER;
 import static com.notes.eversimple.FloatingViewService.callPhoneNumber;
@@ -35,12 +34,14 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 
 
         try {
+            boolean mmicode=false;
 
 
             if(arg1.getAction().equals("android.intent.action.NEW_OUTGOING_CALL")) {
 
                 callPhoneNumber = arg1.getStringExtra(EXTRA_PHONE_NUMBER);
                 Log.d("Evereee","Outgoing number "+callPhoneNumber);
+                if(callPhoneNumber.charAt(0)!=('*')){
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
                     Intent offIntent = new Intent(arg0,FloatingViewService.class);
@@ -50,7 +51,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
                 else {
                     Intent offIntent = new Intent(arg0,FloatingViewService.class);
                     arg0.startService(offIntent);
-                }
+                }}
             }
 
             if(arg1.getAction().equals("android.intent.action.PHONE_STATE")){
@@ -61,7 +62,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
                     Log.d(TAG, TAG+"Inside Extra state off hook");
                     String num=arg1.getStringExtra(EXTRA_PHONE_NUMBER);
 
-
+                    if(callPhoneNumber.charAt(0)!=('*')){
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
@@ -73,7 +74,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
                     else {
                         Intent offIntent = new Intent(arg0,FloatingViewService.class);
                         arg0.startService(offIntent);
-                    }
+                    }}
                 }
 
                 else if (state.equals(TelephonyManager.EXTRA_STATE_RINGING)){
@@ -81,6 +82,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
                     callPhoneNumber = arg1.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
 
                     Log.d(TAG, TAG+"incoming number : " + callPhoneNumber);
+                    if(callPhoneNumber.charAt(0)!=('*')){
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
                         Intent offIntent = new Intent(arg0,FloatingViewService.class);
@@ -92,7 +94,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
                         arg0.startService(offIntent);
                     }
 
-                }
+                }}
                 else if(state.equals(TelephonyManager.EXTRA_STATE_IDLE)){
                     Log.d(TAG, TAG+"Inside EXTRA_STATE_IDLE");
                     arg0.stopService(new Intent(arg0, FloatingViewService.class));

@@ -17,6 +17,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
@@ -31,6 +32,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -56,12 +58,15 @@ public class FloatingViewService extends Service{
     public static String callPhoneNumber;
 
     private WindowManager mWindowManager;
-    private View mFloatingView,mFloatingViewRight;
+    private View mFloatingView;
     SharedPreferences mSharedPreference;
     private static final String TAG_NAME_LIST  = "TAG_NAME_LIST";
     private static final String NOTEBOOK_GUID="NOTEBOOK_GUID";
     public static final String QUERY="query";
     RelativeLayout mleft,mright;
+
+
+    ImageView leftm,leftclose,rightm,rightclose;
 
 
     public FloatingViewService() {
@@ -88,11 +93,13 @@ public class FloatingViewService extends Service{
 
 
         mFloatingView = LayoutInflater.from(this).inflate(R.layout.layout_floating_widget, null);
-        mFloatingViewRight = LayoutInflater.from(this).inflate(R.layout.layout_floating_widget_right, null);
-        mleft=mFloatingViewRight.findViewById(R.id.collapse_viewr);
-        mright=mFloatingView.findViewById(R.id.collapse_view);
-        GradientDrawable shapeDrawable = (GradientDrawable) mright.getBackground();
-        GradientDrawable shapeDrawabler = (GradientDrawable) mleft.getBackground();
+
+        leftm =  mFloatingView.findViewById(R.id.collapsed_iv);
+
+        leftclose=mFloatingView.findViewById(R.id.close_btn);
+        rightclose=mFloatingView.findViewById(R.id.close_button);
+       // GradientDrawable shapeDrawable = (GradientDrawable) leftm.getBackground();
+
 
 
         int LAYOUT_FLAG;
@@ -108,20 +115,20 @@ public class FloatingViewService extends Service{
         int color=mSharedPreference.getInt("pmColor",2);
 
         Log.d("Everee","Post "+ position);
-        switch (color){
-            case 1:
-                shapeDrawable.setColor(getResources().getColor(R.color.glasswhite));
-                shapeDrawabler.setColor(getResources().getColor(R.color.glasswhite));
-                break;
-            case 2:
-                shapeDrawable.setColor(getResources().getColor(R.color.evernoteoff));
-                shapeDrawabler.setColor(getResources().getColor(R.color.evernoteoff));
-                break;
-            case 3:
-                shapeDrawable.setColor(getResources().getColor(R.color.glassBlack));
-                shapeDrawabler.setColor(getResources().getColor(R.color.glassBlack));
-                break;
-        }
+//        switch (color){
+//            case 1:
+//                shapeDrawable.setColor(getResources().getColor(R.color.glasswhite));
+//
+//                break;
+//            case 2:
+//                shapeDrawable.setColor(getResources().getColor(R.color.evernoteoff));
+//
+//                break;
+//            case 3:
+//                shapeDrawable.setColor(getResources().getColor(R.color.glassBlack));
+//
+//                break;
+//        }
 
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -129,55 +136,28 @@ public class FloatingViewService extends Service{
                 LAYOUT_FLAG,
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
-        //Specify the view position
-        switch (position){
-            case 1:
-                params.gravity = Gravity.START | Gravity.TOP;
-                break;
-            case 2:
-                params.gravity = Gravity.START | Gravity.CENTER;
-                break;
-            case 3:
-                params.gravity = Gravity.START | Gravity.BOTTOM;
-                break;
-        }
-
-        //Initially view will be added to top-left corner
+        params.gravity = Gravity.START | Gravity.CENTER;
         params.x = -0;
         params.y = 0;
-
-        final WindowManager.LayoutParams paramsRight = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                LAYOUT_FLAG,
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT);
-        //Specify the view position
-        switch (position){
-            case 1:
-                paramsRight.gravity = Gravity.END | Gravity.TOP;
-                break;
-            case 2:
-                paramsRight.gravity = Gravity.END | Gravity.CENTER;
-                break;
-            case 3:
-                paramsRight.gravity = Gravity.END | Gravity.BOTTOM;
-                break;
-        }
-           //Initially view will be added to top-left corner
-        paramsRight.x=0;
-        paramsRight.y = 0;
+        //Initially view will be added to top-left corner
 
 
-        final Boolean FloatAccept =mSharedPreference.getBoolean("floatButtonAccept",false);
+
+
+
+        final boolean FloatAccept =mSharedPreference.getBoolean("floatButtonAccept",false);
         final String getnotenum =mSharedPreference.getString("notebookGUID","none");
         //Add the view to the window
         if(FloatAccept){
             mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
             mWindowManager.addView(mFloatingView, params);
-            mWindowManager.addView(mFloatingViewRight, paramsRight);
             Log.d("Everee","Open Float");
         }
+        //The root element of the collapsed view layout
+        final View collapsedView = mFloatingView.findViewById(R.id.collapse_view);
+        //The root element of the expanded view layout
+        final View expandedView = mFloatingView.findViewById(R.id.expanded_container);
+
 
         Log.d("Everee","Phn Num Is : "+ callPhoneNumber);
 
@@ -187,13 +167,27 @@ public class FloatingViewService extends Service{
         tags.add(getContactName(callPhoneNumber,FloatingViewService.this));
         final String queryString=getContactName(callPhoneNumber,FloatingViewService.this);
         //final ImageView collapsedImageView = (ImageView) mFloatingView.findViewById(R.id.collapsed_iv);
-        SlideView slideView = (SlideView) mFloatingView.findViewById(R.id.slideView);
-        SlideView slideViewRight = (SlideView) mFloatingViewRight.findViewById(R.id.slideViewRight);
 
-        slideViewRight.setOnSlideCompleteListener(new SlideView.OnSlideCompleteListener() {
+        expandedView.setVisibility(View.VISIBLE);
+        mFloatingView.findViewById(R.id.close_btn).setVisibility(View.GONE);
+        mFloatingView.findViewById(R.id.collapsed_iv).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSlideComplete(SlideView slideView) {
+            public void onClick(View v) {
+                if(expandedView.getVisibility()==View.GONE) {
+                    expandedView.setVisibility(View.VISIBLE);
+                    mFloatingView.findViewById(R.id.close_btn).setVisibility(View.GONE);
+                }
+                else {
+                    expandedView.setVisibility(View.GONE);
+                    mFloatingView.findViewById(R.id.close_btn).setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
+        ImageView newnote = (ImageView) mFloatingView.findViewById(R.id.new_note);
+        newnote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 Intent intent = new Intent("com.evernote.action.CREATE_NEW_NOTE");
 
                 intent.putExtra(TAG_NAME_LIST,tags);
@@ -208,18 +202,19 @@ public class FloatingViewService extends Service{
                 }else
                     Toast.makeText(FloatingViewService.this, "Evernote Not Available", Toast.LENGTH_SHORT).show();
 
-
             }
         });
 
-        slideView.setOnSlideCompleteListener(new SlideView.OnSlideCompleteListener() {
-            @Override
-            public void onSlideComplete(SlideView slideView) {
+        ImageView search=mFloatingView.findViewById(R.id.history);
 
+
+        search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 Intent intent = new Intent("com.evernote.action.SEARCH_NOTES");
 
                 intent.putExtra(QUERY,queryString);
-                DestroyRightView();
+
 
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
                 if (intent.resolveActivity(getPackageManager()) != null) {
@@ -228,6 +223,100 @@ public class FloatingViewService extends Service{
                     Toast.makeText(FloatingViewService.this, "Evernote Not Available", Toast.LENGTH_SHORT).show();
             }
         });
+
+        leftclose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DestroyRightView();
+
+            }
+        });
+        rightclose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mFloatingView.findViewById(R.id.close_btn).setVisibility(View.VISIBLE);
+                expandedView.setVisibility(View.GONE);
+            }
+        });
+
+        //Drag and move floating view using user's touch action.
+        mFloatingView.findViewById(R.id.collapsed_iv).setOnTouchListener(new View.OnTouchListener() {
+            private int initialX;
+            private int initialY;
+            private float initialTouchX;
+            private float initialTouchY;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+
+                    case MotionEvent.ACTION_DOWN:
+
+                        //remember the initial position.
+                        initialX = params.x;
+                        initialY = params.y;
+
+                        //get the touch location
+                        initialTouchX = event.getRawX();
+                        initialTouchY = event.getRawY();
+                        Log.d("Everee","Action Down");
+
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        //Calculate the X and Y coordinates of the view.
+                        params.x = initialX + (int) (event.getRawX() - initialTouchX);
+                        params.y = initialY + (int) (event.getRawY() - initialTouchY);
+
+                        //Update the layout with new X & Y coordinate
+                        mWindowManager.updateViewLayout(mFloatingView, params);
+                        Log.d("Everee","Action Move");
+
+                        break;
+
+
+
+
+                }
+                return false;
+
+
+            }
+        });
+        mFloatingView.findViewById(R.id.root_container).setOnTouchListener(new View.OnTouchListener() {
+            private int initialX;
+            private int initialY;
+            private float initialTouchX;
+            private float initialTouchY;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+
+                        //remember the initial position.
+                        initialX = params.x;
+                        initialY = params.y;
+
+                        //get the touch location
+                        initialTouchX = event.getRawX();
+                        initialTouchY = event.getRawY();
+                        Log.d("Everee","Action root Down");
+
+                    case MotionEvent.ACTION_MOVE:
+                        //Calculate the X and Y coordinates of the view.
+                        params.x = initialX + (int) (event.getRawX() - initialTouchX);
+                        params.y = initialY + (int) (event.getRawY() - initialTouchY);
+
+                        //Update the layout with new X & Y coordinate
+                        mWindowManager.updateViewLayout(mFloatingView, params);
+                        Log.d("Everee","Action root Move");
+;
+
+                }
+                return true;
+            }
+        });
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -258,8 +347,8 @@ public class FloatingViewService extends Service{
         super.onDestroy();
         mSharedPreference = (SharedPreferences) PreferenceManager.getDefaultSharedPreferences(this);
         boolean FloatAccept =mSharedPreference.getBoolean("floatButtonAccept",false);
-        if (FloatAccept && (mFloatingViewRight != null)){
-            mWindowManager.removeView(mFloatingViewRight);
+        if (FloatAccept ){
+
            try {
                if(mFloatingView!=null)
                    DestroyRightView();
@@ -303,6 +392,8 @@ public class FloatingViewService extends Service{
         }
         return contactName;
     }
+
+
 
 
 }

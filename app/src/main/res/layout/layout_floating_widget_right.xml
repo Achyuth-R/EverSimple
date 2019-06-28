@@ -15,26 +15,36 @@
 
         <!--View while view is collapsed-->
         <RelativeLayout
-            android:gravity="end"
-            android:id="@+id/collapse_viewr"
-            android:layout_width="80dp"
+            android:id="@+id/collapse_view"
+            android:layout_width="65dp"
+            android:visibility="visible"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="visible"
-            android:background="@drawable/left_slide"
-            >
+            android:gravity="end">
+            <!--Profile image for the chat head.-->
+            <ImageView
+                android:layout_marginLeft="10dp"
+                android:id="@+id/collapsed_iv"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
 
+                android:padding="10dp"
 
-            <ng.max.slideview.SlideView
-                android:gravity="end"
-                android:id="@+id/slideViewRight"
-                android:layout_width="112dp"
-                android:layout_height="56dp"
                 android:background="@drawable/left_slide"
-                app:sv_buttonBackgroundColor="#0000ffff"
-                app:sv_buttonImage="@drawable/writing"
-                app:sv_reverseSlide="true"
-                app:sv_slideBackgroundColor="#0000ffff" />
+                android:src="@drawable/ic_note_add_black"
+                tools:ignore="ContentDescription"/>
+
+
+            <!--Close button-->
+            <ImageView
+                android:id="@+id/close_btn"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+
+                android:foregroundGravity="left"
+                android:src="@drawable/ic_close"
+                tools:ignore="ContentDescription" />
+
         </RelativeLayout>
 
 
